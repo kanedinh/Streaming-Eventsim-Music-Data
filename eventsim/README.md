@@ -1,6 +1,6 @@
 # Eventsim
 
-Eventsim is a program that generates event data to replicate page requests for a fake music web site (picture something like Spotify); the results look like real use data, but are totally fake. You can find the original repo [here](https://github.com/Interana/eventsim). My docker image is borrowed from [viirya's clone](https://github.com/viirya/eventsim) of it, as the original project has gone without maintenance for a few years now.
+Eventsim is a program that generates event data to replicate page requests for a fake music web site (picture something like Spotify); the results look like real use data, but are totally fake. You can find the original repo ![here](https://github.com/Interana/eventsim). My docker image is borrowed from ![viirya's clone](https://github.com/viirya/eventsim) of it, as the original project has gone without maintenance for a few years now.
 
 ## Setup
 
@@ -22,11 +22,3 @@ docker run -it \
     --kafkaBrokerList localhost:9092 \
     --continuous
 ```
-
-docker run -it --network host events -c "examples/example-config.json" -f 365 --nusers 1000 --growth-rate 0.01 --kafkaBrokerList localhost:9092 --continuous
-15k6 1m2 1m3 571
-
-docker run -it --network host events -c "examples/example-config.json" -f 365 --nusers 2000 --growth-rate 0.01 --kafkaBrokerList localhost:9092 --continuous
-2m4 ...
-
-docker run -itd --network host events -c "examples/example-config.json" -f 365 --nusers 1000 --growth-rate 0.01 --kafkaBrokerList localhost:9092 --continuous

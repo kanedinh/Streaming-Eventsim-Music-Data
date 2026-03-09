@@ -15,8 +15,8 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1 # Replication factor for internal topics (default is 3)
 
       KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093 # Define listeners for broker and controller
-      #    - INTERNAL: Cho các services khác trong mạng Docker (sử dụng tên service 'kafka')
-      #    - EXTERNAL: Cho các clients bên ngoài (sử dụng 'localhost')
+      #    - INTERNAL: for other services in Docker network ('kafka')
+      #    - EXTERNAL: for clients ('localhost')
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092 # Advertised listener for clients
       
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT

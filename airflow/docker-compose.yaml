@@ -84,6 +84,7 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
     - ${AIRFLOW_PROJ_DIR:-.}/dbt_project:/opt/airflow/dbt_project
+    # add eventLog of the session of spark
     - ./spark-events:/tmp/spark-events
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
