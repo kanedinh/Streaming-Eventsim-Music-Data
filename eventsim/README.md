@@ -1,6 +1,6 @@
 # Eventsim
 
-Eventsim is a program that generates event data to replicate page requests for a fake music web site (picture something like Spotify); the results look like real use data, but are totally fake. You can find the original repo ![here](https://github.com/Interana/eventsim). My docker image is borrowed from ![viirya's clone](https://github.com/viirya/eventsim) of it, as the original project has gone without maintenance for a few years now.
+Eventsim is a program that generates event data to replicate page requests for a fake music web site (picture something like Spotify); the results look like real use data, but are totally fake. You can find the original repo [in here](https://github.com/Interana/eventsim). My docker image is borrowed from [viirya's clone](https://github.com/viirya/eventsim) of it, as the original project has gone without maintenance for a few years now.
 
 ## Setup
 
