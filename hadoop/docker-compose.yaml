@@ -1,0 +1,52 @@
+services:  
+  namenode:
+    image: apache/hadoop:3.3.6
+    container_name: namenode
+    hostname: namenode
+    user: "root"
+    ports:
+      - "9870:9870" # NameNode Web UI
+      - "9000:9000" # HDFS IPC Port (Để Spark kết nối)
+    volumes:
+      - ./namenode:/opt/hadoop/dfs/name
+      # Mount cấu hình
+      - ./conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
+      - ./conf/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
+    networks:
+      - shared_network
+    # Tự động format NameNode trong lần chạy đầu tiên nếu thư mục rỗng
+    command: >
+      bash -c "
+      mkdir -p /opt/hadoop/dfs/name;
+      if [ ! -d /opt/hadoop/dfs/name/current ]; then
+        echo 'Formatting NameNode...';
+        /opt/hadoop/bin/hdfs namenode -format -force -nonInteractive;
+      fi;
+      /opt/hadoop/bin/hdfs namenode
+      "
+
+  datanode:
+    image: apache/hadoop:3.3.6
+    container_name: datanode
+    hostname: datanode
+    user: "root"
+    depends_on:
+      - namenode
+    ports:
+      - "9864:9864" # DataNode Web UI
+    volumes:
+      - ./datanode:/opt/hadoop/dfs/data
+      # Mount cấu hình
+      - ./conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
+      - ./conf/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
+    networks:
+      - shared_network
+    command: >
+      bash -c "
+      mkdir -p /opt/hadoop/dfs/data;
+      /opt/hadoop/bin/hdfs datanode
+      "
+
+networks:
+  shared_network:
+    external: true

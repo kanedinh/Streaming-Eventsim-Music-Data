@@ -1,0 +1,85 @@
+services:
+  spark-master:
+    image: apache/spark:3.5.8-java17-python3
+    container_name: spark-master
+    hostname: spark-master
+    ports:
+      - "9080:8080" # Web UI for Master
+      - "7077:7077" # Communication port for Master
+    environment:
+      # Set host for Master
+      - SPARK_MASTER_HOST=spark-master
+      - SPARK_MASTER_PORT=7077
+      # Bind service to run in foreground in Docker container
+      - SPARK_NO_DAEMONIZE=true
+      - SPARK_LOCAL_IP=spark-master
+    # Command to start Spark Master
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+    networks:
+      - shared_network
+
+  spark-worker:
+    image: apache/spark:3.5.8-java17-python3
+    environment:
+      - SPARK_LOCAL_IP=spark-worker
+      # Connect Worker to Master using the address defined above
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      # Configure resources for Worker
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=2g
+      - SPARK_NO_DAEMONIZE=true
+    # Ensure worker starts only after master is ready
+    depends_on:
+      - spark-master
+    # Command to start Spark Worker
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    networks:
+      - shared_network
+
+  spark-history-server:
+    image: apache/spark:3.5.8-java17-python3
+    container_name: spark-history-server
+    user: root
+    ports:
+      - "18080:18080" # History Server Web UI
+    environment:
+      - SPARK_NO_DAEMONIZE=true
+      # Log
+      - SPARK_HISTORY_OPTS=-Dspark.history.fs.logDirectory=file:///tmp/spark-events
+    volumes:
+      - ../airflow/spark-events:/tmp/spark-events
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.history.HistoryServer
+    networks:
+      - shared_network
+
+  # Spark Driver (to run spark-submit)
+  spark-driver:
+    image: apache/spark:3.5.8-java17-python3
+    container_name: spark-driver
+    hostname: spark-driver
+    user: root
+    ports:
+      - "4040:4040" # Web UI for Driver
+    environment:
+      # Ensure driver can find master
+      - SPARK_MASTER=spark://spark-master:7077
+      # Deploy mode
+      - SPARK_DEPLOY_MODE=client
+      - SPARK_DRIVER_HOST=spark-driver
+    volumes:
+      - ./src/:/app
+      - ../airflow/spark-events:/tmp/spark-events
+      - ./conf/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
+      - ./ivy_cache:/tmp/.ivy2
+    working_dir: /app
+    depends_on:
+      - spark-master
+    # Keep the container running with "sleep infinity" to prevent it from exiting.
+    command: >
+      bash -c "chmod 777 /tmp/spark-events && su -s /bin/bash spark -c 'sleep infinity'"
+    networks:
+      - shared_network
+
+networks:
+  shared_network:
+    external: true

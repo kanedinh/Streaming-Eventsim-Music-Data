@@ -1,0 +1,11 @@
+sources:
+  - name: eventsim_data
+    database: postgres_db
+    schema: public
+    tables:
+      - name: auth_events
+      - name: listen_events
+      - name: page_view_events
+      - name: status_change_events
+      - name: songs
+      - name: state_codes

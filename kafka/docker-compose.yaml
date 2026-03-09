@@ -1,0 +1,96 @@
+services:
+  kafka:
+    image: confluentinc/cp-kafka:7.8.3
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_KRAFT_MODE: 'true'  # Enable KRaft mode instead of using ZooKeeper
+
+      CLUSTER_ID: 'LkX5jZpRTdO1Z2x3Y4W5V6U7T8S9R0Q1'  # Unique identifier for the Kafka cluster
+      KAFKA_BROKER_ID: 1  # Broker ID for this Kafka instance
+
+      KAFKA_PROCESS_ROLES: broker,controller  # Define roles for this node
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093 # Define the controller quorum voters
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1 # Replication factor for internal topics (default is 3)
+
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093 # Define listeners for broker and controller
+      #    - INTERNAL: Cho các services khác trong mạng Docker (sử dụng tên service 'kafka')
+      #    - EXTERNAL: Cho các clients bên ngoài (sử dụng 'localhost')
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092 # Advertised listener for clients
+      
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER # Specify the controller listener name
+
+    networks:
+      - shared_network
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.8.3
+    container_name: schema-registry
+    hostname: schema-registry
+    ports:
+      - "8081:8081"
+    environment:
+      # Connect Schema Registry to Kafka broker
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'kafka:29092' 
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: 1 # Replication factor for Schema Registry topic
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - shared_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:7.8.3
+    container_name: control-center
+    hostname: control-center
+    ports:
+      - "9021:9021"
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'kafka:29092'
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      
+      # Connect Control Center to Schema Registry
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
+
+      #CONTROL_CENTER_CONNECT_CLUSTER: 'http://connect:8083' # If you have Kafka Connect, specify its URL here
+      CONTROL_CENTER_STREAMS_NUM_STREAM_THREADS: 1
+      CONTROL_CENTER_ID: 1
+      CONTROL_CENTER_KAFKA_MODE: KRaft
+
+      CONTROL_CENTER_METRICS_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_METRICS_TOPIC_PARTITIONS: 1
+      CONTROL_CENTER_METRICS_TOPIC_RETENTION_MS: 604800000 
+      CONTROL_CENTER_METRICS_TOPIC_COMPRESSION_TYPE: zstd
+
+      CONTROL_CENTER_JMX_PORTS: "kafka:9999"
+      CONTROL_CENTER_JMX_USERNAME: 'control-center'
+      CONTROL_CENTER_JMX_PASSWORD: 'password'
+
+    depends_on:
+      - kafka
+      - schema-registry
+    restart: unless-stopped
+    networks:
+      - shared_network
+
+networks:
+  shared_network:
+    external: true

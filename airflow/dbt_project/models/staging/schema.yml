@@ -1,0 +1,5 @@
+models:
+    - name: stg_auth_events
+    - name: stg_listen_events
+    - name: stg_page_view_events
+    - name: stg_status_change_events

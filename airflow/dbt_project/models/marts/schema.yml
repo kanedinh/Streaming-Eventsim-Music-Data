@@ -1,0 +1,7 @@
+models:
+    - name: dim_artist
+    - name: dim_date
+    - name: dim_location
+    - name: dim_song
+    - name: dim_user
+    - name: fact

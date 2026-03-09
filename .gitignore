@@ -1,0 +1,42 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.vscode
+
+# Virtual environments
+.venv
+
+# uv generated files
+.python-version
+pyproject.toml
+uv.lock
+
+# trash
+text.txt
+
+# dbt
+/dbt_project
+
+# spark folder
+spark/ivy_cache/
+
+# postgres folder
+postgres/postgres_data
+
+# hadoop folder
+hadoop/datanode
+hadoop/namenode
+
+# airflow folder
+airflow/config
+airflow/logs
+airflow/plugins
+airflow/spark-events
+
+# .bat
+start_streaming.bat
+start_transformation.bat
