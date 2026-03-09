@@ -4,13 +4,13 @@ Eventsim is a program that generates event data to replicate page requests for a
 
 ## Setup
 
-## Docker Image
+### Docker Image
 
 ```bash
 docker build -t events:1.0 .
 ```
 
-## Run With Kafka Configured On Localhost
+### Run With Kafka Configured On Localhost
 
 ```bash
 docker run -it \
