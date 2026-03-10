@@ -19,4 +19,4 @@ docker-compose up -d
 
 :: 3. Wait for a few seconds to ensure all containers are up
 echo  Done!
-:: pause
+pause

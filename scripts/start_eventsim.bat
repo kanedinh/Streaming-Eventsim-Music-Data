@@ -21,4 +21,4 @@ docker run -itd ^
     --continuous
 
 echo Done!
-:: pause
+pause
