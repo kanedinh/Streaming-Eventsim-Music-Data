@@ -8,20 +8,22 @@ The project will stream events generated from a fake music streaming service (li
 
 ## About Data
 
-Eventsim is the program that generates event data from a fake music website. Read more [in here](https://github.com/Interana/eventsim). The docker image is borrowed from [viirya's fork](https://github.com/viirya/eventsim).
+Eventsim is the program that generates event data from a fake music website. Read more [in here](https://github.com/Interana/eventsim). 
+
+The docker image is borrowed from [viirya's fork](https://github.com/viirya/eventsim).
 
 Eventsim uses song data from [Million Songs Dataset](http://millionsongdataset.com) to generate events. I have used a [subset](http://millionsongdataset.com/pages/getting-dataset/#subset) of 10000 songs.
 
-## What's Tools & Technologies I use in this Project
+## What's Tools & Technologies I used in this Project
 
-- **Data source**: Eventsim.
-- **Containerization**: Docker.
-- **Stream Processing**: Kafka, Spark Streaming.
-- **Data Storage**: Hadoop HDFS.
-- **Batch Processing**: Pyspark.
-- **Data Transformation**: dbt.
-- **Data Warehouse**: PostgreSQL.
-- **Language Programing**: Python.
+- **Data source**: Eventsim
+- **Containerization**: Docker
+- **Stream Processing**: Kafka, Spark Streaming
+- **Data Storage**: Hadoop HDFS
+- **Batch Processing**: Pyspark
+- **Data Transformation**: dbt
+- **Data Warehouse**: PostgreSQL
+- **Language Programing**: Python
 
 ## Project Structure
 
@@ -67,19 +69,8 @@ Project
 │   └── requirements.txt    # library for python in airflow
 ├── eventsim            # eventsim
 │   ├── data
-│   │   ├── .DS_Store
-│   │   ├── Gaz_zcta_national.txt
-│   │   ├── listen_counts.txt.gz
-│   │   ├── songs_analysis.txt.gz
-│   │   ├── Top1000Surnames.csv
-│   │   ├── US.txt
-│   │   ├── user agents.txt
-│   │   └── yob1990.txt
 │   ├── examples
-│   │   ├── alt-example-config.json
-│   │   └── example-config.json
 │   ├── target
-│   │   └── eventsim-assembly-2.0.jar
 │   ├── Dockerfile
 │   ├── eventsim.sh
 │   └── README.md
@@ -133,3 +124,43 @@ Project
 ![dbt lineage](/images/dbt_lineage.png)
 
 *Created by dbt*
+
+## Quick Guide For Windows
+
+Requirements: 8 Cores CPU & 16GB RAM
+
+**First**, install [Docker Desktop](https://www.docker.com/).
+
+**Second**, 'streaming & load' stage. You need to start some containers and create a docker network ```shared_network``` for this stage. (kafka, spark, hadoop). You may run ```start_kafka.bat```, ```start_spark.bat```, ... in scripts folder OR run the scripts below in terminal.
+
+```shell
+docker create network shared_network
+cd kafka
+docker-compose up -d
+cd ..\spark
+docker-compose up -d
+cd ..\hadoop
+docker-compose up -d
+```
+
+About Kafka, you can access [localhost:9021](localhost:9021) to see Control Center of it.
+
+About Spark, go to [localhost:9080](localhost:9080) to see its.
+
+About hadoop, go to [localhost:9870](localhost:9870) to access namenode.
+
+If you access all the services above, you may simulate events data. Run ```start_eventsim.bat``` to begin. You can config some variables like:
+
+- "DAY_FROM_NOW": from x day ago
+
+- "NUSERS" : initial number of users
+
+- "GROWTH_RATE": annual user growth rate
+
+**Third**, 'transform' stage. You need to start airflow & postgres containers (```start_airflow.bat``` & ```start_postgres.bat```)
+
+Add **spark** & **postgres** connections to airflow.
+
+![Connections](/images/airflow_connection.png)
+
+After that, you can run DAG with name "Data_pipeline".
