@@ -19,7 +19,7 @@ profile_config = ProfileConfig(
 )
 
 @dag(
-    dag_id="Data_pipeline_v2",
+    dag_id="Data_pipeline",
     schedule='@daily',
     start_date= pendulum.datetime(2026, 1, 1, tz=local_tz), # change it according ts of event
     catchup=False,
